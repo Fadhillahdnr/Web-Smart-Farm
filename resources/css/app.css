@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GLOBAL */
+body {
+    background: #f8fafc;
+    font-family: 'Segoe UI', sans-serif;
+    color: #1e293b;
+}
+
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* BUTTON */
+.btn {
+    background: #22c55e;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: #16a34a;
+}
+
+/* CARDS */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    padding: 20px;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* SECTION */
+.section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+@media(max-width: 768px) {
+    .section {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* BOX */
+.box {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+}
+
+/* TABLE */
+.table-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 10px;
+    background: #f1f5f9;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* PROGRESS */
+.progress {
+    background: #e2e8f0;
+    border-radius: 20px;
+    height: 10px;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #22c55e;
+    border-radius: 20px;
+    transition: 0.5s;
+}
+
+.progress-bar.ph {
+    background: #3b82f6;
+}
+
+/* FLASH EFFECT FOR CARDS */
+.card h2 {
+    transition: all 0.3s ease;
+}
+
+.card.flash h2 {
+    color: #22c55e;
+    transform: scale(1.1);
+}
+
+/* NEW ROW ANIMATION IN TABLE */
+.new-row {
+    animation: highlightRow 1s ease;
+    background: #dcfce7;
+}
+
+@keyframes highlightRow {
+    0% { background: #86efac; }
+    100% { background: transparent; }
+}
+
+/* STATUS COLORS */
+.card h2#status {
+    font-size: 1.2rem;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.realtime {
+    font-size: 14px;
+    color: #555;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+    background: linear-gradient(135deg, #ff5f6d, #ff3d3d);
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(255, 0, 0, 0.3);
+}
+
+.logout-btn:active {
+    transform: scale(0.95);
+}
