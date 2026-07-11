@@ -6,6 +6,7 @@ use App\Models\SoilPlot;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class SoilPlotController extends Controller
@@ -54,6 +55,31 @@ class SoilPlotController extends Controller
 
         return to_route('dashboard', ['soil' => $soilPlot->id])
             ->with('success', 'Token sensor baru dibuat. Perbarui token pada perangkat Anda.');
+    }
+
+    public function activate(Request $request, SoilPlot $soilPlot): RedirectResponse
+    {
+        $this->authorizeOwner($request, $soilPlot);
+
+        DB::transaction(function () use ($soilPlot): void {
+            // ESP32 lama tidak membawa identitas perangkat. Karena itu hanya
+            // boleh ada satu tujuan rekaman tanpa token di seluruh sistem.
+            SoilPlot::query()->lockForUpdate()->get(['id']);
+            SoilPlot::query()->where('is_active', true)->update(['is_active' => false]);
+            $soilPlot->update(['is_active' => true]);
+        });
+
+        return to_route('dashboard', ['soil' => $soilPlot->id])
+            ->with('success', "Rekaman dimulai. Data ESP32 sekarang masuk ke {$soilPlot->name}.");
+    }
+
+    public function deactivate(Request $request, SoilPlot $soilPlot): RedirectResponse
+    {
+        $this->authorizeOwner($request, $soilPlot);
+        $soilPlot->update(['is_active' => false]);
+
+        return to_route('dashboard', ['soil' => $soilPlot->id])
+            ->with('success', 'Rekaman dihentikan. Data ESP32 tanpa token tidak akan disimpan.');
     }
 
     public function destroy(Request $request, SoilPlot $soilPlot): RedirectResponse

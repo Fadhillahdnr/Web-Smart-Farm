@@ -62,21 +62,29 @@
         </div>
 
         @if($selectedSoil)
-            <div class="mt-5 grid gap-4 border-t pt-5 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div class="mt-5 grid gap-4 border-t pt-5 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
-                    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Token perangkat untuk {{ $selectedSoil->name }}</p>
-                    <div class="flex gap-2">
-                        <input id="sensorToken" readonly value="{{ $selectedSoil->getRawOriginal('sensor_token') }}" class="min-w-0 flex-1 rounded-xl border-slate-200 bg-slate-50 px-3 py-2 font-mono text-xs">
-                        <button type="button" id="copyToken" class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium hover:bg-slate-50">Salin</button>
-                    </div>
-                    <p class="mt-2 text-xs text-slate-500">Kirim token ini melalui header <code>X-Soil-Token</code> pada request perangkat. Jangan bagikan ke pihak lain.</p>
+                    @if($selectedSoil->is_active)
+                        <p class="font-bold text-emerald-700">● Sedang merekam ke {{ $selectedSoil->name }}</p>
+                        <p class="mt-1 text-sm text-slate-500">Data dari ESP32 Anda otomatis disimpan ke histori tanah ini. Program Arduino tidak perlu diubah.</p>
+                    @else
+                        <p class="font-bold text-slate-700">Rekaman untuk {{ $selectedSoil->name }} belum aktif</p>
+                        <p class="mt-1 text-sm text-slate-500">Tekan Mulai Rekam sebelum mengukur tanah agar data ESP32 masuk ke histori yang benar.</p>
+                    @endif
                 </div>
                 <div class="flex flex-wrap gap-2">
+                    @if($selectedSoil->is_active)
+                        <form method="POST" action="{{ route('soil-plots.deactivate', $selectedSoil) }}">
+                            @csrf @method('PATCH')
+                            <button class="rounded-xl bg-red-500 px-5 py-2 font-semibold text-white hover:bg-red-600">■ Hentikan Rekaman</button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('soil-plots.activate', $selectedSoil) }}">
+                            @csrf @method('PATCH')
+                            <button class="rounded-xl bg-emerald-600 px-5 py-2 font-semibold text-white hover:bg-emerald-700">▶ Mulai Rekam</button>
+                        </form>
+                    @endif
                     <button type="button" id="toggleRename" class="rounded-xl border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">Ubah nama</button>
-                    <form method="POST" action="{{ route('soil-plots.token', $selectedSoil) }}" onsubmit="return confirm('Token lama akan langsung berhenti bekerja. Lanjutkan?')">
-                        @csrf @method('PATCH')
-                        <button class="rounded-xl border border-amber-300 px-4 py-2 text-sm text-amber-700 hover:bg-amber-50">Buat ulang token</button>
-                    </form>
                     <form method="POST" action="{{ route('soil-plots.destroy', $selectedSoil) }}" onsubmit="return confirm('Hapus {{ addslashes($selectedSoil->name) }} beserta SELURUH histori sensor? Tindakan ini tidak dapat dibatalkan.')">
                         @csrf @method('DELETE')
                         <button class="rounded-xl border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50">Hapus tanah</button>
@@ -88,6 +96,20 @@
                 <input name="name" required maxlength="100" value="{{ $selectedSoil->name }}" class="flex-1 rounded-xl border-slate-300 px-4 py-2">
                 <button class="rounded-xl bg-slate-800 px-4 py-2 text-white">Simpan nama</button>
             </form>
+            <details class="mt-4 rounded-xl bg-slate-50 p-3 text-sm">
+                <summary class="cursor-pointer font-medium text-slate-600">Pengaturan lanjutan perangkat</summary>
+                <div class="mt-3">
+                    <p class="mb-2 text-xs text-slate-500">Token ini hanya diperlukan jika nanti Anda mengubah program ESP32 atau menggunakan beberapa alat sekaligus.</p>
+                    <div class="flex gap-2">
+                        <input id="sensorToken" readonly value="{{ $selectedSoil->getRawOriginal('sensor_token') }}" class="min-w-0 flex-1 rounded-xl border-slate-200 bg-white px-3 py-2 font-mono text-xs">
+                        <button type="button" id="copyToken" class="rounded-xl border border-slate-300 px-4 py-2 font-medium hover:bg-white">Salin</button>
+                    </div>
+                    <form method="POST" action="{{ route('soil-plots.token', $selectedSoil) }}" class="mt-2" onsubmit="return confirm('Token lama akan langsung berhenti bekerja. Lanjutkan?')">
+                        @csrf @method('PATCH')
+                        <button class="text-xs font-medium text-amber-700 hover:underline">Buat ulang token</button>
+                    </form>
+                </div>
+            </details>
         @endif
     </section>
 

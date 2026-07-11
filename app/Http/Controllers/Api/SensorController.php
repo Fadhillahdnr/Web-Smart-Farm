@@ -20,13 +20,17 @@ class SensorController extends Controller
         ]);
 
         $token = $request->header('X-Soil-Token') ?: ($validated['soil_token'] ?? null);
-        $soilPlot = SoilPlot::where('sensor_token', $token)->first();
+        $soilPlot = $token
+            ? SoilPlot::where('sensor_token', $token)->first()
+            : SoilPlot::where('is_active', true)->first();
 
         if (! $soilPlot) {
             return response()->json([
                 'success' => false,
-                'message' => 'Token tanah tidak valid.',
-            ], 401);
+                'message' => $token
+                    ? 'Token tanah tidak valid.'
+                    : 'Belum ada tanah aktif. Pilih tanah dan tekan Mulai Rekam pada dashboard.',
+            ], $token ? 401 : 409);
         }
 
         unset($validated['soil_token']);

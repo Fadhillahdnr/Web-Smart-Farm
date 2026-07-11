@@ -11,9 +11,14 @@ class SoilPlot extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'sensor_token'];
+    protected $fillable = ['name', 'sensor_token', 'is_active'];
 
     protected $hidden = ['sensor_token'];
+
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
 
     public function user(): BelongsTo
     {

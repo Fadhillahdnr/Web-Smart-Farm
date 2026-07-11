@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/soil-plots', [SoilPlotController::class, 'store'])->name('soil-plots.store');
     Route::patch('/soil-plots/{soilPlot}', [SoilPlotController::class, 'update'])->name('soil-plots.update');
     Route::patch('/soil-plots/{soilPlot}/token', [SoilPlotController::class, 'regenerateToken'])->name('soil-plots.token');
+    Route::patch('/soil-plots/{soilPlot}/activate', [SoilPlotController::class, 'activate'])->name('soil-plots.activate');
+    Route::patch('/soil-plots/{soilPlot}/deactivate', [SoilPlotController::class, 'deactivate'])->name('soil-plots.deactivate');
     Route::delete('/soil-plots/{soilPlot}', [SoilPlotController::class, 'destroy'])->name('soil-plots.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

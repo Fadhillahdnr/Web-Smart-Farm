@@ -45,6 +45,49 @@ class SoilMonitoringTest extends TestCase
         ]);
     }
 
+    public function test_existing_esp32_payload_without_token_uses_the_active_soil(): void
+    {
+        $soilPlot = $this->soilPlotFor(User::factory()->create(), 'Tanah A');
+        $soilPlot->update(['is_active' => true]);
+
+        $this->postJson('/api/sensor', [
+            'moisture' => 55,
+            'ph' => 6.7,
+            'color' => 'COKLAT',
+            'status' => 'SUBUR',
+            'battery' => 85,
+        ])->assertCreated()->assertJsonPath('soil', 'Tanah A');
+
+        $this->assertDatabaseHas('sensor_data', [
+            'soil_plot_id' => $soilPlot->id,
+            'moisture' => 55,
+        ]);
+    }
+
+    public function test_payload_without_token_is_rejected_when_recording_is_stopped(): void
+    {
+        $this->postJson('/api/sensor', [
+            'moisture' => 55,
+            'ph' => 6.7,
+            'color' => 'COKLAT',
+            'status' => 'SUBUR',
+            'battery' => 85,
+        ])->assertStatus(409);
+    }
+
+    public function test_activating_a_soil_stops_the_previous_recording_target(): void
+    {
+        $user = User::factory()->create();
+        $soilA = $this->soilPlotFor($user, 'Tanah A');
+        $soilB = $this->soilPlotFor($user, 'Tanah B');
+        $soilA->update(['is_active' => true]);
+
+        $this->actingAs($user)->patch(route('soil-plots.activate', $soilB))->assertRedirect();
+
+        $this->assertFalse($soilA->fresh()->is_active);
+        $this->assertTrue($soilB->fresh()->is_active);
+    }
+
     public function test_sensor_endpoint_rejects_an_invalid_token_and_invalid_ranges(): void
     {
         $this->postJson('/api/sensor', [
