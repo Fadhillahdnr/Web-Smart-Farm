@@ -40,9 +40,6 @@
     <div class="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-green-600 to-green-800 text-white p-10">
 
         <h1 class="text-3xl font-bold mb-4">🌱 Soil Classifier</h1>
-        <p class="text-center text-sm opacity-90">
-            Monitoring kesuburan tanah secara realtime menggunakan IoT & AI
-        </p>
 
         <div class="mt-6 text-6xl">
             🌾
