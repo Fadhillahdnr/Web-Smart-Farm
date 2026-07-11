@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class SoilPlot extends Model
 {
@@ -28,5 +29,12 @@ class SoilPlot extends Model
     public function sensorData(): HasMany
     {
         return $this->hasMany(SensorData::class);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        // Literal PostgreSQL diperlukan saat PDO emulated prepares digunakan.
+        // Bentuk ini juga valid pada SQLite yang dipakai oleh test suite.
+        return $query->whereRaw('is_active IS TRUE');
     }
 }

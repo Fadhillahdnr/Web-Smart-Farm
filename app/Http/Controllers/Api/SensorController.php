@@ -22,7 +22,7 @@ class SensorController extends Controller
         $token = $request->header('X-Soil-Token') ?: ($validated['soil_token'] ?? null);
         $soilPlot = $token
             ? SoilPlot::where('sensor_token', $token)->first()
-            : SoilPlot::where('is_active', true)->first();
+            : SoilPlot::active()->first();
 
         if (! $soilPlot) {
             return response()->json([

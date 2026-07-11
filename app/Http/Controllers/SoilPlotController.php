@@ -65,8 +65,8 @@ class SoilPlotController extends Controller
             // ESP32 lama tidak membawa identitas perangkat. Karena itu hanya
             // boleh ada satu tujuan rekaman tanpa token di seluruh sistem.
             SoilPlot::query()->lockForUpdate()->get(['id']);
-            SoilPlot::query()->where('is_active', true)->update(['is_active' => false]);
-            $soilPlot->update(['is_active' => true]);
+            SoilPlot::active()->update(['is_active' => DB::raw('FALSE')]);
+            SoilPlot::query()->whereKey($soilPlot->id)->update(['is_active' => DB::raw('TRUE')]);
         });
 
         return to_route('dashboard', ['soil' => $soilPlot->id])
@@ -76,7 +76,7 @@ class SoilPlotController extends Controller
     public function deactivate(Request $request, SoilPlot $soilPlot): RedirectResponse
     {
         $this->authorizeOwner($request, $soilPlot);
-        $soilPlot->update(['is_active' => false]);
+        SoilPlot::query()->whereKey($soilPlot->id)->update(['is_active' => DB::raw('FALSE')]);
 
         return to_route('dashboard', ['soil' => $soilPlot->id])
             ->with('success', 'Rekaman dihentikan. Data ESP32 tanpa token tidak akan disimpan.');

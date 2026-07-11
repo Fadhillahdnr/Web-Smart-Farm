@@ -216,6 +216,21 @@ function renderHistory(items) {
     });
 }
 
+function updateConnectionBadge(latest) {
+    const badge = document.getElementById('connectionBadge');
+    const ageInSeconds = latest?.created_at
+        ? (Date.now() - new Date(latest.created_at).getTime()) / 1000
+        : Infinity;
+
+    if (ageInSeconds <= 15) {
+        badge.textContent = 'Sensor online';
+        badge.className = 'rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700';
+    } else {
+        badge.textContent = 'Sensor tidak mengirim';
+        badge.className = 'rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700';
+    }
+}
+
 async function refresh() {
     const badge = document.getElementById('connectionBadge');
     try {
@@ -239,7 +254,7 @@ async function refresh() {
                 chart.update('none');
             }
         }
-        badge.textContent = 'Online'; badge.className = 'rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700';
+        updateConnectionBadge(latest);
     } catch (error) {
         badge.textContent = 'Terputus'; badge.className = 'rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700';
     }
@@ -253,6 +268,7 @@ document.getElementById('copyToken').addEventListener('click', async event => {
 });
 renderHistory(initialHistory);
 if (initialHistory[0]) { lastDataId = initialHistory[0].id; updateCards(initialHistory[0]); }
+updateConnectionBadge(initialHistory[0] ?? null);
 setInterval(refresh, 3000);
 </script>
 @else
