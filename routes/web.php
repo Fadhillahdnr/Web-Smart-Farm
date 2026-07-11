@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Models\SensorData;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SoilPlotController;
+use App\Models\SoilPlot;
 use App\Exports\SensorDataExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -18,14 +20,17 @@ Route::get('/', function () {
 });
 
 // Dashboard (WAJIB LOGIN)
-Route::get('/dashboard', function () {
-    $latest = SensorData::latest()->first();
-    $all = SensorData::latest()->take(20)->get()->reverse();
-    return view('dashboard', compact('latest','all'));
-})->middleware(['auth'])->name('dashboard');
-
 // Profile (bawaan breeze)
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/soil/{soilPlot}/latest', [DashboardController::class, 'latest'])->name('dashboard.latest');
+    Route::get('/dashboard/soil/{soilPlot}/history', [DashboardController::class, 'history'])->name('dashboard.history');
+
+    Route::post('/soil-plots', [SoilPlotController::class, 'store'])->name('soil-plots.store');
+    Route::patch('/soil-plots/{soilPlot}', [SoilPlotController::class, 'update'])->name('soil-plots.update');
+    Route::patch('/soil-plots/{soilPlot}/token', [SoilPlotController::class, 'regenerateToken'])->name('soil-plots.token');
+    Route::delete('/soil-plots/{soilPlot}', [SoilPlotController::class, 'destroy'])->name('soil-plots.destroy');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -36,9 +41,13 @@ Route::get('/home', function () {
     return redirect('/dashboard');
 });
 
-Route::get('/export-excel', function () {
-    return Excel::download(new SensorDataExport, 'data-sensor.xlsx');
-})->middleware('auth');
+Route::get('/soil-plots/{soilPlot}/export-excel', function (SoilPlot $soilPlot) {
+    abort_unless($soilPlot->user_id === request()->user()->id, 404);
+
+    $filename = 'data-sensor-'.str($soilPlot->name)->slug().'.xlsx';
+
+    return Excel::download(new SensorDataExport($soilPlot), $filename);
+})->middleware('auth')->name('soil-plots.export');
 
 // Auth routes (login, register, dll)
 require __DIR__.'/auth.php';

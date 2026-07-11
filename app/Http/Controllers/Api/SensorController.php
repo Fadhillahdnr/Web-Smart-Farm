@@ -3,52 +3,39 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use App\Models\SensorData;
+use App\Models\SoilPlot;
 
 class SensorController extends Controller
 {
     public function store(Request $request)
     {
-        Log::info('DATA MASUK:', $request->all());
-
         $validated = $request->validate([
-            'moisture' => 'required|numeric',
-            'ph' => 'required|numeric',
-            'color' => 'required|string',
-            'status' => 'required|string',
-            'battery' => 'required|numeric',
+            'soil_token' => 'nullable|string|size:48',
+            'moisture' => 'required|integer|between:0,100',
+            'ph' => 'required|numeric|between:0,14',
+            'color' => 'required|string|max:50',
+            'status' => 'required|string|max:50',
+            'battery' => 'required|integer|between:0,100',
         ]);
 
-        $data = SensorData::create($validated);
+        $token = $request->header('X-Soil-Token') ?: ($validated['soil_token'] ?? null);
+        $soilPlot = SoilPlot::where('sensor_token', $token)->first();
+
+        if (! $soilPlot) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tanah tidak valid.',
+            ], 401);
+        }
+
+        unset($validated['soil_token']);
+        $data = $soilPlot->sensorData()->create($validated);
 
         return response()->json([
             'success' => true,
-            'data' => $data
-        ]);
-    }
-
-    public function latest()
-    {
-        $data = SensorData::latest()->first();
-
-        return response()->json([
-            'id' => $data->id ?? null,
-            'moisture' => $data->moisture ?? 0,
-            'ph' => $data->ph ?? 0,
-            'color' => $data->color ?? '-',
-            'status' => $data->status ?? '-',
-            'battery' => $data->battery ?? 0,
-            'created_at' => $data->created_at ?? null
-        ]);
-    }
-
-    // 🔥 TAMBAHAN INI
-    public function history()
-    {
-        $data = SensorData::latest()->limit(10)->get();
-
-        return response()->json($data);
+            'soil' => $soilPlot->name,
+            'data' => $data,
+        ], 201);
     }
 }

@@ -2,19 +2,24 @@
 
 namespace App\Exports;
 
-use App\Models\SensorData;
+use App\Models\SoilPlot;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class SensorDataExport implements FromCollection, WithHeadings
 {
+    public function __construct(private readonly SoilPlot $soilPlot)
+    {
+    }
+
     public function collection()
     {
-        return SensorData::select(
+        return $this->soilPlot->sensorData()->select(
             'created_at',
             'moisture',
             'ph',
             'color',
+            'battery',
             'status'
         )->latest()->get();
     }
@@ -26,6 +31,7 @@ class SensorDataExport implements FromCollection, WithHeadings
             'Soil (%)',
             'pH',
             'Warna Tanah',
+            'Baterai (%)',
             'Status'
         ];
     }
