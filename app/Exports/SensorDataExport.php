@@ -21,7 +21,7 @@ class SensorDataExport implements FromCollection, WithHeadings
             'color',
             'battery',
             'status'
-        )->latest()->get();
+        )->orderByDesc('id')->get();
     }
 
     public function headings(): array

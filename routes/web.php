@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/soil/{soilPlot}/latest', [DashboardController::class, 'latest'])->name('dashboard.latest');
     Route::get('/dashboard/soil/{soilPlot}/history', [DashboardController::class, 'history'])->name('dashboard.history');
+    Route::get('/dashboard/soil/{soilPlot}/snapshot', [DashboardController::class, 'snapshot'])->name('dashboard.snapshot');
 
     Route::post('/soil-plots', [SoilPlotController::class, 'store'])->name('soil-plots.store');
     Route::patch('/soil-plots/{soilPlot}', [SoilPlotController::class, 'update'])->name('soil-plots.update');

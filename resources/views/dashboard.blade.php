@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Soil Classifier</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite('resources/css/app.css')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .card { transition: transform .25s ease, box-shadow .25s ease; }
@@ -165,8 +165,7 @@
 
 @if($selectedSoil)
 <script>
-const latestUrl = @json(route('dashboard.latest', $selectedSoil));
-const historyUrl = @json(route('dashboard.history', $selectedSoil));
+const snapshotUrl = @json(route('dashboard.snapshot', $selectedSoil));
 const initialHistory = @json($history);
 let lastDataId = null;
 
@@ -220,11 +219,16 @@ function renderHistory(items) {
 async function refresh() {
     const badge = document.getElementById('connectionBadge');
     try {
-        const [latestResponse, historyResponse] = await Promise.all([fetch(latestUrl), fetch(historyUrl)]);
-        if (!latestResponse.ok || !historyResponse.ok) throw new Error('Request gagal');
-        const [latest, history] = await Promise.all([latestResponse.json(), historyResponse.json()]);
+        const response = await fetch(snapshotUrl, {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store'
+        });
+        if (!response.ok) throw new Error(`Request gagal (${response.status})`);
+        const snapshot = await response.json();
+        const latest = snapshot.latest;
+        const history = snapshot.history;
         renderHistory(history);
-        if (latest.id) {
+        if (latest?.id) {
             updateCards(latest);
             if (lastDataId !== latest.id) {
                 lastDataId = latest.id;

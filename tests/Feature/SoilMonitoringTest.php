@@ -131,6 +131,21 @@ class SoilMonitoringTest extends TestCase
             ->assertJsonPath('0.moisture', 30);
     }
 
+    public function test_dashboard_snapshot_returns_latest_and_history_in_one_response(): void
+    {
+        $user = User::factory()->create();
+        $soil = $this->soilPlotFor($user, 'Tanah A');
+        SensorData::create($this->sensorPayload($soil, 30));
+        SensorData::create($this->sensorPayload($soil, 70));
+
+        $this->actingAs($user)
+            ->getJson(route('dashboard.snapshot', $soil))
+            ->assertOk()
+            ->assertJsonCount(2, 'history')
+            ->assertJsonPath('latest.moisture', 70)
+            ->assertJsonPath('recording', false);
+    }
+
     private function soilPlotFor(User $user, string $name): SoilPlot
     {
         return $user->soilPlots()->create([

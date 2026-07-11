@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $soilPlots = $request->user()->soilPlots()->orderBy('name')->get();
         $selectedSoil = $this->selectedSoil($request, $soilPlots->first());
         $history = $selectedSoil
-            ? $selectedSoil->sensorData()->latest()->limit(20)->get()
+            ? $selectedSoil->sensorData()->orderByDesc('id')->limit(20)->get()
             : collect();
 
         return view('dashboard', compact('soilPlots', 'selectedSoil', 'history'));
@@ -23,7 +23,7 @@ class DashboardController extends Controller
     public function latest(Request $request, SoilPlot $soilPlot): JsonResponse
     {
         $this->authorizeOwner($request, $soilPlot);
-        $data = $soilPlot->sensorData()->latest()->first();
+        $data = $soilPlot->sensorData()->orderByDesc('id')->first();
 
         return response()->json($data ?: [
             'id' => null,
@@ -41,8 +41,23 @@ class DashboardController extends Controller
         $this->authorizeOwner($request, $soilPlot);
 
         return response()->json(
-            $soilPlot->sensorData()->latest()->limit(20)->get()
+            $soilPlot->sensorData()->orderByDesc('id')->limit(20)->get()
         );
+    }
+
+    public function snapshot(Request $request, SoilPlot $soilPlot): JsonResponse
+    {
+        $this->authorizeOwner($request, $soilPlot);
+
+        // Satu query untuk card, grafik, dan tabel. Ini menghindari dua request
+        // paralel yang membebani connection pool PostgreSQL/Supabase.
+        $history = $soilPlot->sensorData()->orderByDesc('id')->limit(20)->get();
+
+        return response()->json([
+            'latest' => $history->first(),
+            'history' => $history,
+            'recording' => $soilPlot->is_active,
+        ]);
     }
 
     private function selectedSoil(Request $request, ?SoilPlot $fallback): ?SoilPlot
