@@ -19,7 +19,7 @@
     <header class="mb-6 flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-emerald-700">🌱 Soil Classifier</h1>
-            <p class="text-sm text-slate-500">Monitoring kesuburan tanah secara realtime</p>
+            <p class="text-sm text-slate-500">Monitoring kesuburan tanah secara langsung</p>
         </div>
         <div class="flex items-center gap-3">
             <span class="hidden text-sm text-slate-500 sm:inline">{{ auth()->user()->name }}</span>
